@@ -1,4 +1,4 @@
-name: Octopus.Migrate
+name: Build
 
 on: [push, pull_request]
 
@@ -12,6 +12,6 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1.4.0
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore .\src
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build .\src --configuration Release --no-restore
