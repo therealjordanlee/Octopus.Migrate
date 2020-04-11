@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Services.Common;
+﻿using Microsoft.TeamFoundation.Common;
+using Microsoft.VisualStudio.Services.Common;
 using Octopus.Client;
 using Octopus.Client.Model;
 using Octopus.Migrate.Models;
@@ -42,19 +43,23 @@ namespace Octopus.Migrate
             var variables = _octopusRepository.VariableSets.Get(librarySet.VariableSetId);
 
             // Get unscoped variables
-            var unscopedVariables = variables.Variables.Where(x => x.Scope.ContainsKey(ScopeField.Environment)).ToList();
+            var unscopedVariables = variables.Variables.Where(x => x.Scope.IsNullOrEmpty());
+
+            // Convert octopus VariableResource into VariableEntity
+            var results = new List<VariableEntity>();
+            unscopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
 
             // get variables scoped to the requested environment
-            var scopedVariables = variables.Variables
+            if (!environment.IsNullOrEmpty())
+            {
+                var scopedVariables = variables.Variables
                 .Where(x => x.Scope.ContainsKey(ScopeField.Environment))
                 .Where(x => x.Scope[ScopeField.Environment].Contains(environmentResource.Id))
                 .ToList()
                 .OrderBy(x => x.Name);
 
-            // Convert octopus VariableResource into VariableEntity
-            var results = new List<VariableEntity>();
-            unscopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
-            scopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
+                scopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
+            }
 
             results.OrderBy(x => x.Name);
             return results;
