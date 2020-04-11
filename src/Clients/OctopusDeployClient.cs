@@ -58,7 +58,19 @@ namespace Octopus.Migrate
                 .ToList()
                 .OrderBy(x => x.Name);
 
-                scopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
+                scopedVariables.ForEach(x =>
+                {
+                    // Check if there's already an unscoped variable; Returns -1 if element doesn't exist
+                    var existing = results.FindIndex(result => result.Name == x.Name);
+                    if (existing >= 0)
+                    {
+                        results[existing].Value = x.Value;
+                    }
+                    else
+                    {
+                        results.Add(new VariableEntity { Name = x.Name, Value = x.Value });
+                    }
+                });
             }
 
             results.OrderBy(x => x.Name);
