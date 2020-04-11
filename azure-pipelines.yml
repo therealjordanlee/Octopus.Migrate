@@ -1,0 +1,72 @@
+# Run pipeline whenever a commit or tag is pushed
+trigger:
+    branches:
+      include:
+      - '*'
+    tags:
+      include: 
+      - '*'
+  
+  # Run pipeline whenever a PR is raised
+  pr:
+    branches:
+      include:
+      - '*'
+  
+  # Run pipeline everyday. Azure DevOps schedules follow UTC
+  # We build master on daily
+  schedules:
+  - cron: "0 14 * * *" # 00:00 AEST is 14:00 UTC
+    displayName: 'Daily Build'
+    branches:
+      include:
+      - master
+  
+  variables:
+    BuildConfiguration: release
+  
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration $(BuildConfiguration) --no-restore'
+
+  - task: PowerShell@2
+    displayName: 'Check Tag conforms to SemVer'
+    condition: startsWith(variables['build.sourceBranch'], 'refs/tags/') # Only run this step when the trigger event is a tag push
+    inputs:
+      targetType: 'inline'
+      script: |
+        $tag = "$(build.sourceBranch)".Replace("refs/tags/","")
+        $regexString = "^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$"
+        $regex = new-object System.Text.RegularExpressions.Regex ($regexString,[System.Text.RegularExpressions.RegexOptions]::MultiLine)
+        Write-Host "Pushed tag is $tag"
+        if ($tag -match $regex)
+        {
+          Write-Host "$tag conforms to semantic version; Setting Azure DevOps variable PACKAGE_VERSION..."
+          # Write the tag (e.g. 1.0.0) to an environment variable, so we can use it in the following step
+          Write-Host "##vso[task.setvariable variable=PACKAGE_VERSION]$tag"
+          Write-Host "PACKAGE_VERSION set to $env:PACKAGE_VERSION"
+        }
+        else
+        {
+          # Error out if the tag doesn't conform to semantic versioning standard
+          Write-Error "$tag does not conform to semantic versioning"
+          exit 1
+        }
+  - task: DotNetCoreCLI@2
+    displayName: 'Pack'
+    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/tags/')) # Only run this step when the trigger event is a tag push
+    inputs:
+      command: 'pack'
+      packagesToPack: 'src/**/*.csproj'
+      versioningScheme: 'byEnvVar'
+      versionEnvVar: 'PACKAGE_VERSION'
