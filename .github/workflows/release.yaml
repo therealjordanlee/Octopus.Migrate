@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1.4.0
+    - name: Get the version from tag
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    - name: Install dependencies
+      run: dotnet restore ./src
+    - name: Build
+      run: dotnet build ./src --configuration Release --no-restore
+    - name: Create nuget package
+      run: dotnet build ./src --configuration Release --no-restore -p:Version=${{ steps.get_version.outputs.VERSION }}
