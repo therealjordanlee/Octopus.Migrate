@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Octopus.Migrate
+namespace Octopus.Migrate.Clients
 {
     public class OctopusDeployClient
     {
@@ -47,7 +47,12 @@ namespace Octopus.Migrate
 
             // Convert octopus VariableResource into VariableEntity
             var results = new List<VariableEntity>();
-            unscopedVariables.ForEach(x => results.Add(new VariableEntity { Name = x.Name, Value = x.Value }));
+            unscopedVariables.ForEach(x => {
+                if (x.IsSensitive) // Sensitive variables can't be copied
+                    results.Add(new VariableEntity { Name = x.Name, Value = "[SECRET]" });
+                else
+                    results.Add(new VariableEntity { Name = x.Name, Value = x.Value });
+                });
 
             // get variables scoped to the requested environment
             if (!environment.IsNullOrEmpty())
@@ -68,7 +73,10 @@ namespace Octopus.Migrate
                     }
                     else
                     {
-                        results.Add(new VariableEntity { Name = x.Name, Value = x.Value });
+                        if(x.IsSensitive)
+                            results.Add(new VariableEntity { Name = x.Name, Value = "[SECRET]" });
+                        else
+                            results.Add(new VariableEntity { Name = x.Name, Value = x.Value });
                     }
                 });
             }
