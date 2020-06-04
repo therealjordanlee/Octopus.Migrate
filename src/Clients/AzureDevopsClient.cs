@@ -26,7 +26,7 @@ namespace Octopus.Migrate.Clients
         /// <param name="variableGroupId">The Id of the Variable Group in Azure DevOps</param>
         /// <param name="variables">A list of key-value pairs to add or update in the Variable Group</param>
         /// <returns></returns>
-        public async Task UpdateVariableLibrary(int variableGroupId, List<VariableEntity> variables)
+        public async Task UpdateVariableLibrary(int variableGroupId, List<VariableModel> variables)
         {
             var taskClient = _connection.GetClient<TaskAgentHttpClient>();
             var varGroup = await taskClient.GetVariableGroupAsync(_projectName, variableGroupId);
