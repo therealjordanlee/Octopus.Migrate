@@ -3,7 +3,7 @@
     /// <summary>
     /// Generic class representing a key-value pair
     /// </summary>
-    public class VariableEntity
+    public class VariableModel
     {
         public string Name { get; set; }
         public string Value { get; set; }

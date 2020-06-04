@@ -12,14 +12,14 @@ namespace Octopus.Migrate.Example
             var octopusUrl = "https://octopus.contoso.local"; //Replace with your own Octopus URL
             var octopusApiKey = "[Your API Key]"; // Replace with your Octopus API key
 
-            var octopusService = new OctopusDeployClient(octopusUrl, octopusApiKey);
-            var octopusVariables = octopusService.GetLibraryVariables("demo-library", "Prod");
+            var octopusDeployClient = new OctopusDeployClient(octopusUrl, octopusApiKey);
+            var libraryVariables = octopusDeployClient.GetLibraryVariablesForEnvironment("demo-library", "Prod");
 
-            foreach (var variable in octopusVariables)
+            foreach (var variable in libraryVariables)
             {
                 Console.WriteLine($"{variable.Name} : {variable.Value}");
             }
-            Console.WriteLine($"Retrieved {octopusVariables.Count()} variables from Octopus");
+            Console.WriteLine($"Retrieved {libraryVariables.Count()} variables from Octopus");
 
             // Writing variables into Azure DevOps
             var azureDevopsPat = "[Your Personal Access Token]"; // Replace with your Azure Personal Access Token
@@ -28,7 +28,7 @@ namespace Octopus.Migrate.Example
             var variableGroupId = 123; //Replace with Id of your variable group
 
             var azureDevopsClient = new AzureDevopsClient(url, azureDevopsPat, projectName);
-            azureDevopsClient.UpdateVariableLibrary(variableGroupId, octopusVariables.ToList()).GetAwaiter().GetResult();
+            azureDevopsClient.UpdateVariableLibrary(variableGroupId, libraryVariables.ToList()).GetAwaiter().GetResult();
         }
     }
 }
