@@ -10,7 +10,7 @@ Install-Package Octopus.Migrate
 ```
 
 ## Sample Usage
-Example projects are available in the [Example folder](/Example).
+Example projects are available in the [Example folder](/examples).
 
 ## License
 See [LICENSE.md](LICENSE.md).
