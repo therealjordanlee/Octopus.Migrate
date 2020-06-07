@@ -1,6 +1,4 @@
 ﻿using Microsoft.TeamFoundation.Common;
-using Microsoft.TeamFoundation.DistributedTask.Pipelines;
-using Microsoft.VisualStudio.Services.Common;
 using Octopus.Client;
 using Octopus.Client.Model;
 using Octopus.Migrate.Models;
@@ -10,6 +8,17 @@ using System.Linq;
 
 namespace Octopus.Migrate.Clients
 {
+    public interface IOctopusDeployClient
+    {
+        IEnumerable<VariableModel> GetLibraryVariablesForEnvironment(string libraryName, string environment);
+
+        IEnumerable<string> GetAllProjects();
+
+        IEnumerable<VariableModel> GetProjectVariables(string projectName);
+
+        IEnumerable<string> GetAllEnvironments();
+    }
+
     public class OctopusDeployClient : IOctopusDeployClient
     {
         private OctopusServerEndpoint _octopusServerEndpoint;
@@ -118,6 +127,11 @@ namespace Octopus.Migrate.Clients
             return environments;
         }
 
+        /// <summary>
+        /// Returns a list of project variables applied to a particular environment. This includes unscoped variables (which apply to all environments).
+        /// </summary>
+        /// <param name="projectName">The name of the Octopus project</param>
+        /// <param name="environment">The environment (scope) name (e.g. "Prod")</param>
         public IEnumerable<VariableModel> GetProjectVariablesForEnvironment(string projectName, string environment)
         {
             var project = _octopusRepository.Projects.FindByName(projectName);

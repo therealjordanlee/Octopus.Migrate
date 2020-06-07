@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Octopus.Migrate.Clients
 {
-    public class AzureDevopsClient
+    public class AzureDevopsAsyncClient
     {
         private VssConnection _connection;
         private string _projectName;
 
-        public AzureDevopsClient(string azureDevopsUrl, string personalAccessToken, string projectName)
+        public AzureDevopsAsyncClient(string azureDevopsUrl, string personalAccessToken, string projectName)
         {
             VssCredentials creds = new VssBasicCredential(string.Empty, personalAccessToken);
             _connection = new VssConnection(new Uri(azureDevopsUrl), creds);
