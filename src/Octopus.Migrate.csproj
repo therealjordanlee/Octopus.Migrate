@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.TeamFoundation.DistributedTask.WebApi" Version="16.153.0" />
     <PackageReference Include="Microsoft.VisualStudio.Services.Client" Version="16.153.0" />
-    <PackageReference Include="Octopus.Client" Version="8.4.0" />
+    <PackageReference Include="Octopus.Client" Version="8.5.1" />
   </ItemGroup>
 
   <ItemGroup>

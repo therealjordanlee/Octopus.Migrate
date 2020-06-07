@@ -17,6 +17,8 @@ namespace Octopus.Migrate.Clients
         IEnumerable<VariableModel> GetProjectVariables(string projectName);
 
         IEnumerable<string> GetAllEnvironments();
+
+        IEnumerable<VariableModel> GetProjectVariablesForEnvironment(string projectName, string environment);
     }
 
     public class OctopusDeployClient : IOctopusDeployClient

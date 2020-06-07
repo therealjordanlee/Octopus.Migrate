@@ -8,7 +8,12 @@ using System.Threading.Tasks;
 
 namespace Octopus.Migrate.Clients
 {
-    public class AzureDevopsAsyncClient
+    public interface IAzureDevopsAsyncClient
+    {
+        Task UpdateVariableLibrary(int variableGroupId, List<VariableModel> variables);
+    }
+
+    public class AzureDevopsAsyncClient : IAzureDevopsAsyncClient
     {
         private VssConnection _connection;
         private string _projectName;
